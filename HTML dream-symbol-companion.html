@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Symbol Companion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --ink: #eae6f5;
+    --ink-dim: #a9a0c4;
+    --bg-deep: #14102b;
+    --bg-mid: #1e1840;
+    --bg-card: #251d4d;
+    --gold: #d4af6a;
+    --gold-dim: #8a7550;
+    --line: rgba(212, 175, 106, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(ellipse at 20% -10%, #2a2260 0%, var(--bg-deep) 55%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, #fff8, transparent),
+      radial-gradient(1px 1px at 80% 10%, #fff6, transparent),
+      radial-gradient(1px 1px at 60% 40%, #fff5, transparent),
+      radial-gradient(1.5px 1.5px at 30% 65%, #fff7, transparent),
+      radial-gradient(1px 1px at 90% 70%, #fff5, transparent),
+      radial-gradient(1px 1px at 45% 85%, #fff6, transparent),
+      radial-gradient(1.5px 1.5px at 75% 90%, #fff7, transparent);
+    background-size: 100% 100%;
+    opacity: 0.6;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 52px 24px 30px;
+  }
+
+  .moon {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff5d8, var(--gold) 70%, var(--gold-dim) 100%);
+    box-shadow: 0 0 30px rgba(212,175,106,0.35);
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .book-tag {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 6px 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .search-wrap {
+    position: sticky;
+    top: 16px;
+    z-index: 2;
+    margin-bottom: 28px;
+  }
+
+  #search {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1.05rem;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #search::placeholder { color: var(--ink-dim); }
+
+  #search:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px rgba(212,175,106,0.12);
+  }
+
+  .count {
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    margin: 10px 4px 0;
+    letter-spacing: 0.03em;
+  }
+
+  .symbol-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .symbol-card {
+    background: var(--bg-mid);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .symbol-card:hover, .symbol-card.open {
+    background: var(--bg-card);
+    border-color: var(--gold-dim);
+  }
+
+  .symbol-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .symbol-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .chevron {
+    color: var(--gold-dim);
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+  }
+
+  .symbol-card.open .chevron { transform: rotate(90deg); color: var(--gold); }
+
+  .symbol-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, margin-top 0.25s ease;
+  }
+
+  .symbol-card.open .symbol-body {
+    max-height: 200px;
+    margin-top: 12px;
+  }
+
+  .symbol-body p {
+    margin: 0 0 8px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink-dim);
+  }
+
+  .symbol-body .tone {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .empty {
+    text-align: center;
+    color: var(--ink-dim);
+    padding: 40px 20px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: 50px;
+    padding: 24px;
+    color: var(--ink-dim);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--line);
+  }
+
+  footer .heart { color: var(--gold); }
+
+  footer p { margin: 0 0 10px; }
+  footer .disclaimer {
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--ink-dim);
+    max-width: 480px;
+    margin: 10px auto 0;
+    opacity: 0.75;
+  }
+</style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <header>
+    <div class="moon"></div>
+    <h1>Dream Symbol Companion</h1>
+    <p class="subtitle">A quiet place to look up what you saw last night — search all 62 dream symbols from the book below.</p>
+    <div class="book-tag">Companion to Dream Analysis Crosswords</div>
+  </header>
+
+  <main>
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Search a symbol… (e.g. water, teeth, flying)" autocomplete="off">
+      <p class="count" id="count"></p>
+    </div>
+
+    <div class="symbol-list" id="list"></div>
+    <div class="empty" id="empty" style="display:none;">No symbols found. Try a different word, or think about what it reminded you of.</div>
+  </main>
+
+  <footer>
+    <p>Made with <span class="heart">♥</span> as a companion to your Dream Analysis Crosswords journal.</p>
+    <p class="disclaimer">No personal information is collected, stored, or shared on this page — there are no forms, accounts, or cookies here. Interpretations are offered for entertainment and reflective purposes only, and are not a substitute for professional psychological guidance. This page is provided free, as-is, for as long as it remains available.</p>
+  </footer>
+
+<script>
+const SYMBOLS = [
+  {name:"Water", tone:"Emotional depth", text:"Calm, clear water often reflects emotional clarity or a sense of peace you're currently carrying. Murky or turbulent water points to feelings that are harder to see through -- something unresolved moving beneath the surface. Pay attention to your relationship to the water: floating calmly, swimming with effort, or simply observing from the shore each suggest a different level of emotional control. Across many cultures, water is tied to the unconscious mind itself -- vast, deep, and only partly visible even to the dreamer."},
+  {name:"Teeth Falling Out", tone:"Vulnerability & control", text:"One of the most universally reported dreams across cultures and centuries. Often tied to a fear of losing control, worry about aging, or self-consciousness about how others perceive you. Some researchers connect it to real physical sensations during sleep (like teeth grinding) rather than pure symbolism -- but psychologically, it consistently clusters around moments of feeling exposed or judged. If it recurs, consider what specifically feels precarious or at stake right now."},
+  {name:"Flying", tone:"Freedom or escape", text:"Effortless flying often signals a sense of freedom, confidence, or rising above a stressful situation in waking life. Struggling to stay airborne, losing altitude, or flying with visible effort can instead reflect anxiety about maintaining control or momentum somewhere important to you. The height and ease of the flight often scale directly with how much control you currently feel you have."},
+  {name:"Being Chased", tone:"Avoidance", text:"Frequently linked to avoiding a problem, person, or feeling in your waking life. It's worth asking gently: what -- or who -- is chasing you? And what might happen if you finally turned around and faced it? The identity of the pursuer often matters less than the emotion of being pursued; many people report the same 'faceless' chaser dream repeatedly during high-stress periods."},
+  {name:"Falling", tone:"Loss of control", text:"Falling dreams often surface during periods of instability, when something in life feels like it's slipping out of your hands -- a job, a relationship, or a sense of security you'd been counting on. Interestingly, most people wake up before impact; dream researchers note this is likely tied to a natural sleep-cycle muscle twitch (a hypnic jerk) as much as pure symbolism, though the emotional resonance remains real."},
+  {name:"Missing a Flight or Bus", tone:"Missed opportunity", text:"A very common anxiety dream tied to feeling unprepared or worried about missing an important opportunity. It often surfaces during periods when time feels like it's moving faster than you can keep up with -- a deadline, a decision, or a window that feels like it's closing."},
+  {name:"Back in School, Unprepared", tone:"Self-judgment", text:"Even decades after graduation, this dream tends to resurface around performance pressure -- a sense of being tested, evaluated, or judged in some current part of your life. For many people, this becomes a lifelong recurring dream that returns each time that pressure reappears in a new form, whether at work, in a relationship, or in a new life stage."},
+  {name:"House with Extra Rooms", tone:"Hidden potential", text:"Discovering unknown rooms in a familiar house often reflects untapped parts of yourself -- skills, memories, or possibilities you haven't fully explored yet. The condition of the rooms matters: dusty and forgotten suggests something neglected, while bright and inviting suggests potential you're just beginning to notice."},
+  {name:"Meeting a Deceased Loved One", tone:"Processing & comfort", text:"Often reported as peaceful rather than frightening. Many describe these dreams as a form of continued connection, or a quiet way of processing something that still feels unfinished. Some grief researchers note these dreams often arrive at emotionally significant times -- anniversaries, milestones, or moments the dreamer especially needed comfort."},
+  {name:"Losing Your Voice / Can't Scream", tone:"Feeling unheard", text:"Frequently tied to a waking situation where you feel unable to speak up, be heard, or assert yourself. This dream often intensifies during conflicts you've been avoiding, or in relationships where you feel your opinion carries less weight than you'd like."},
+  {name:"Car Losing Control", tone:"Direction in life", text:"A vehicle you can't control often mirrors a feeling that some part of your life -- career, relationship, health -- feels like it's out of your hands right now. Who else is in the car, if anyone, can be worth noting too; a passenger you're responsible for may point to a sense of responsibility for someone else's wellbeing."},
+  {name:"Being Lost", tone:"Uncertainty", text:"Common during major life transitions. This dream points less to literal disorientation, and more to a feeling of not knowing your next step. A recurring version often tracks closely with an ongoing period of uncertainty -- a job search, a move, or a decision you haven't yet made."},
+  {name:"Naked in Public", tone:"Exposure & judgment", text:"Usually linked to a fear of being exposed, judged, or 'found out' in some part of waking life -- rarely about the literal nudity itself. Whether others in the dream notice or react is telling: if no one seems to care, it may suggest your fear of judgment is larger than the real stakes."},
+  {name:"Drowning", tone:"Overwhelm", text:"Often surfaces during periods when responsibilities or emotions feel like they're piling up faster than you can manage them. Unlike falling dreams, drowning dreams tend to involve a slower, more sustained sense of struggle -- worth noticing if the dream feels like a single crisis or an ongoing effort to keep your head above water."},
+  {name:"Snakes", tone:"Transformation or threat", text:"Interpretation varies widely by culture -- some traditions read snakes as danger or betrayal, others as healing, transformation, or hidden wisdom (the shedding of skin is often read as renewal). The snake's behavior in the dream -- coiled and still, striking, or simply passing by -- often shapes which reading fits best."},
+  {name:"Fire", tone:"Passion or destruction", text:"Fire can represent intense emotion, anger, or passion -- but also purification and starting fresh, depending on whether the fire feels threatening or illuminating in the dream. A controlled fire, like a candle or hearth, often reads very differently from a wildfire or house fire."},
+  {name:"Money (Finding or Losing)", tone:"Self-worth", text:"Often less about literal finances and more about a sense of value, security, or worth -- either found unexpectedly or feared lost. Finding money you didn't expect can reflect an underappreciated strength; losing a wallet or bill can reflect anxiety about your own worth being overlooked."},
+  {name:"Pregnancy (not literal)", tone:"New beginnings", text:"Common even for those not planning a family -- frequently symbolizes a new project, idea, or phase of life quietly developing in the background. The dream often arrives before the dreamer is consciously aware of how far along that new idea already is."},
+  {name:"Being Late", tone:"Pressure & pace", text:"A near-universal anxiety dream reflecting pressure to keep pace with expectations -- your own, or someone else's. Worth noticing who you're late to see or meet; that relationship often holds a clue to where the real pressure is coming from."},
+  {name:"Death (not literal)", tone:"Endings & change", text:"Dreaming of death, including your own, rarely predicts anything literal -- it typically points to the end of a phase, habit, or chapter, making room for something new. Many people report these dreams feeling more peaceful than frightening once they recognize the symbolic pattern."},
+  {name:"Mirrors", tone:"Self-perception", text:"Mirrors often reflect how you see yourself right now -- especially if the reflection looks different than expected. A cracked, aged, or unfamiliar reflection can point to a gap between how you see yourself and how you feel you're truly changing."},
+  {name:"Being Unable to Run", tone:"Feeling stuck", text:"Trying to move but being held back is commonly tied to a waking sense of being stuck, blocked, or unable to make progress quickly enough. This dream often intensifies just before a person finally takes action on something they've been putting off."},
+  {name:"Swimming Effortlessly", tone:"Emotional ease", text:"A positive counterpart to drowning dreams -- often signals that you're moving through your emotions with more ease than you give yourself credit for. This dream is a good one to sit with and ask what, specifically, has started to feel easier lately."},
+  {name:"Winning or Succeeding Publicly", tone:"Validation", text:"Points to a desire for recognition or confirmation that your efforts are seen and valued by others -- a very human, very common wish, especially during periods of quiet, unrecognized effort."},
+  {name:"Wedding (your own)", tone:"Commitment", text:"Often symbolic of a commitment forming in waking life -- not necessarily romantic, it could be to a project, a value, or a new direction. Anxiety in the dream (forgetting vows, running late) often mirrors real uncertainty about that commitment."},
+  {name:"Being Pregnant with an Animal", tone:"Unconventional growth", text:"An unusual but reported dream, often tied to nurturing something in your life that feels instinctual, unconventional, or outside what others might expect of you."},
+  {name:"Tornado", tone:"Emotional upheaval", text:"Represents chaotic, fast-moving change or emotions that feel too big to contain. Notice how you respond to the storm -- seeking shelter, watching from a distance, or being caught in it -- that reaction often carries the real meaning."},
+  {name:"Spiders", tone:"Feeling trapped or intricate problems", text:"Can reflect a feeling of being caught in a complicated situation -- or, in more positive readings, patience and careful, deliberate creation. The spider's size and proximity in the dream often signals how large the underlying situation feels."},
+  {name:"Falling Teeth into Your Hand", tone:"Release", text:"A gentler variant of the classic teeth dream -- often tied to consciously letting go of something, rather than losing it against your will. This version tends to feel more like release than loss."},
+  {name:"Someone Watching You", tone:"Self-consciousness", text:"Frequently surfaces during periods of heightened self-awareness or worry about how you're being perceived by others -- often before a public moment like a presentation, event, or decision that others will see."},
+  {name:"Climbing Stairs", tone:"Progress", text:"Usually reflects a sense of working toward a goal. Notice whether the stairs feel endless, easy, or precarious -- that detail often mirrors exactly how the real climb currently feels to you."},
+  {name:"Broken Glass or Mirror", tone:"Fractured self-image", text:"Often linked to a moment where self-image, a relationship, or a plan feels fractured or in need of careful repair. Whether you're the one who breaks it, or simply witness it breaking, can shift the meaning toward responsibility or helplessness."},
+  {name:"Rain", tone:"Emotional release", text:"Gentle rain often signals emotional release or cleansing, while a full storm may point to feelings building steadily toward a head. Rain you're sheltered from versus rain you're caught in also shifts the reading."},
+  {name:"Being Invisible", tone:"Feeling overlooked", text:"Frequently tied to a waking sense of not being seen, heard, or valued in a particular relationship or setting. Some people find this dream oddly comforting rather than distressing -- worth noticing which it is for you."},
+  {name:"Baby (not your own)", tone:"New responsibility", text:"Often symbolizes a new responsibility, idea, or relationship that feels fragile right now and needs careful, gentle attention. The baby's condition -- calm, crying, thriving -- often reflects how that new responsibility currently feels to carry."},
+  {name:"Ocean (vast, open)", tone:"The unknown", text:"A vast, open ocean often reflects the scale of the unknown -- a big decision, a new chapter, or emotions too large to fully name just yet. Being on a boat versus swimming directly in the water can shift the feeling from observed to fully immersed."},
+  {name:"Being Trapped in a Small Space", tone:"Restriction", text:"Commonly tied to feeling confined by circumstances -- a job, relationship, or expectation that feels too tight to move freely within. The specific space (elevator, room, box) sometimes points to exactly which part of life feels confining."},
+  {name:"Reuniting with an Old Friend", tone:"Reconnection", text:"Often reflects a desire to reconnect with a part of yourself, a value, or a period of life that person represents to you -- not always a literal wish to see them again."},
+  {name:"Wild Animal Encounter", tone:"Instinct", text:"Depending on the animal and its behavior, often represents an instinctual part of yourself -- either one you're wary of, or one you need to trust more. A calm encounter often points toward growing self-trust; a threatening one toward unresolved fear."},
+  {name:"Elevator (out of control)", tone:"Rapid life change", text:"An elevator moving unpredictably often reflects a sense that events are moving faster than you can process, for better or worse. Rising uncontrollably and falling uncontrollably tend to carry different emotional weight -- one often excitement-tinged anxiety, the other dread."},
+  {name:"Earthquake", tone:"Shaken foundations", text:"Often surfaces when something foundational in life feels unstable -- a job, a relationship, or your own sense of security. Notice whether the dream ends in safety or ongoing chaos; that often mirrors how resolved the underlying situation currently feels."},
+  {name:"Plane Crash", tone:"Fear of losing control", text:"A dramatic but common anxiety dream tied to a fear of losing control in a situation with real stakes -- often surfacing before a big decision, a major risk, or a moment where the outcome feels largely out of your hands."},
+  {name:"A Partner Being Unfaithful", tone:"Trust & insecurity", text:"Rarely a literal prediction -- more often reflects an underlying insecurity, a need for reassurance, or unspoken doubts in a relationship that deserve gentle, honest attention while awake, rather than immediate suspicion."},
+  {name:"Childhood Home Revisited", tone:"Unresolved past", text:"Often surfaces during major life transitions, when part of you is quietly processing where you came from as you figure out where you're headed next. Familiar smells or small sensory details in the dream are often the most emotionally loaded part."},
+  {name:"A Talking Animal", tone:"Inner wisdom", text:"Frequently interpreted as a message from your own intuition -- the animal often says something your waking mind has been circling around but hasn't fully said out loud yet. What it says is often worth writing down immediately upon waking."},
+  {name:"Zombies", tone:"Fear of the mundane", text:"Often tied less to fear of death and more to a sense of dread about repetition -- feeling like you're going through the motions without really living. This dream often clusters during burnout or long stretches of unchanging routine."},
+  {name:"Winning the Lottery", tone:"Unexpected abundance", text:"Often less about actual money and more about a wish for a shortcut -- a sudden, effortless solution to something that currently feels slow or hard-won in waking life."},
+  {name:"Giving Birth", tone:"Creation & new self", text:"Frequently symbolizes the arrival of something new you've been developing -- an idea, a project, or a new version of yourself coming fully into being, often after a long period of quiet preparation."},
+  {name:"Time Travel", tone:"Reflection on past or future", text:"Often tied to processing something from your past with the clarity you only have now, or imagining how a current choice might look from a future vantage point. Which direction you travel -- backward or forward -- often points to which is weighing on you more."},
+  {name:"An Ex-Partner Returning", tone:"Unresolved feelings", text:"Rarely about wanting the relationship back -- more often reflects lingering, unresolved feelings that haven't fully been given space to close. The emotional tone of the dream (warm, tense, neutral) often tells you more than the reunion itself."},
+  {name:"Getting a Tattoo", tone:"Permanent change", text:"Often reflects a desire to mark a change or commitment in a visible, lasting way -- claiming an identity or a decision you've been quietly settling into for some time."},
+  {name:"Losing a Pet", tone:"Grief & protection", text:"Often tied to a broader fear of losing something you're responsible for protecting -- not always literal, sometimes a project, routine, or relationship you've been quietly caring for and don't want to fail."},
+  {name:"Searching for a Bathroom", tone:"Need for relief or privacy", text:"Often a straightforward stress-release dream -- surfacing during periods when you feel like you don't have enough private space, time, or relief just for yourself amid everything else going on."},
+  {name:"Turning Into a Werewolf", tone:"Hidden instinctual self", text:"Often represents an instinctual, less-controlled side of yourself that you usually keep carefully contained -- this dream lets it out to be examined rather than suppressed, which can feel both frightening and freeing."},
+  {name:"A Volcano Erupting", tone:"Suppressed anger", text:"A vivid symbol for anger or pressure that's been building quietly for some time -- the dream often surfaces right before that pressure genuinely needs an outlet in waking life, one way or another."},
+  {name:"Receiving an Unexpected Gift", tone:"Feeling valued", text:"Often reflects a quiet wish to feel seen, appreciated, or thought of by someone -- worth noticing who's doing the giving in the dream, since that relationship often holds the real emotional weight."},
+  {name:"Climbing a Mountain", tone:"Long-term goal pursuit", text:"A near-universal symbol for pursuing a long-term goal -- the terrain of the climb (steep, foggy, clear, crowded) often mirrors exactly how the real pursuit currently feels to you."},
+  {name:"Lost in the Desert", tone:"Isolation & endurance", text:"Often surfaces during periods of feeling isolated or unsupported -- the endurance in the dream frequently mirrors real emotional stamina you're quietly drawing on right now, even if it doesn't feel that way while awake."},
+  {name:"Losing Your Phone or Wallet", tone:"Modern anxiety", text:"A very modern anxiety dream, reflecting how tightly our sense of connection and control is now tied to a small device -- often surfaces during periods of feeling untethered, hard to reach, or disconnected from people who matter to you."},
+  {name:"A Job Interview", tone:"Performance & self-worth", text:"Commonly tied to a real waking situation where you feel evaluated or under pressure to prove your worth -- not always a literal interview, sometimes any high-stakes moment of being assessed by someone whose opinion matters to you."},
+  {name:"A Recurring Dream", tone:"The mind circling back", text:"A dream that repeats, even in slightly different forms, often signals something unresolved that your mind keeps circling back to, hoping to finally process or complete it. The specific setting matters less than the fact that it returns -- pay close attention to what changes, or doesn't, each time it does. Some people find that consciously reflecting on the dream during the day, rather than only at night, helps it finally resolve or shift."},
+  {name:"Rediscovering a Forgotten Memory", tone:"Surfacing the past", text:"Dreams sometimes surface genuine memories that waking life has buried under years of newer experiences -- often small, sensory details rather than dramatic events: a smell, a specific room, a voice. These aren't always literal or perfectly accurate, but they can be worth sitting with gently, as a real thread back to your own past worth exploring further while awake."},
+];
+
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('empty');
+const countEl = document.getElementById('count');
+const searchEl = document.getElementById('search');
+
+function render(items) {
+  listEl.innerHTML = '';
+  if (items.length === 0) {
+    emptyEl.style.display = 'block';
+    countEl.textContent = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  countEl.textContent = items.length + (items.length === 1 ? ' symbol' : ' symbols');
+
+  items.forEach(sym => {
+    const card = document.createElement('div');
+    card.className = 'symbol-card';
+    card.innerHTML = `
+      <div class="symbol-head">
+        <span class="symbol-name">${sym.name}</span>
+        <span class="chevron">›</span>
+      </div>
+      <div class="symbol-body">
+        <p class="tone">${sym.tone}</p>
+        <p>${sym.text}</p>
+      </div>
+    `;
+    card.addEventListener('click', () => card.classList.toggle('open'));
+    listEl.appendChild(card);
+  });
+}
+
+function filterSymbols(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return SYMBOLS;
+  return SYMBOLS.filter(s =>
+    s.name.toLowerCase().includes(q) ||
+    s.text.toLowerCase().includes(q) ||
+    s.tone.toLowerCase().includes(q)
+  );
+}
+
+searchEl.addEventListener('input', (e) => {
+  render(filterSymbols(e.target.value));
+});
+
+render(SYMBOLS);
+</script>
+</body>
+</html>
